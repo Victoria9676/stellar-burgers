@@ -17,6 +17,7 @@ import { useDispatch } from '../../services/store';
 import { useEffect } from 'react';
 import { getIngredients } from '../../services/slices/slice';
 import { closeIngredientDetails } from '../../services/slices/burger-slice';
+import { getUser } from '../../services/slices/auth-slice';
 import {
   AppHeader,
   IngredientDetails,
@@ -29,6 +30,9 @@ const App = (): React.JSX.Element => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getIngredients());
+  }, [dispatch]);
+  useEffect(() => {
+    dispatch(getUser());
   }, [dispatch]);
   const location = useLocation();
   const navigate = useNavigate();
@@ -65,7 +69,7 @@ const App = (): React.JSX.Element => {
         <Route
           path='/login'
           element={
-            <ProtectedRoute>
+            <ProtectedRoute onlyUnAuth>
               <Login />
             </ProtectedRoute>
           }
@@ -73,7 +77,7 @@ const App = (): React.JSX.Element => {
         <Route
           path='/register'
           element={
-            <ProtectedRoute>
+            <ProtectedRoute onlyUnAuth>
               <Register />
             </ProtectedRoute>
           }
@@ -81,7 +85,7 @@ const App = (): React.JSX.Element => {
         <Route
           path='/forgot-password'
           element={
-            <ProtectedRoute>
+            <ProtectedRoute onlyUnAuth>
               <ForgotPassword />
             </ProtectedRoute>
           }
@@ -89,7 +93,7 @@ const App = (): React.JSX.Element => {
         <Route
           path='/reset-password'
           element={
-            <ProtectedRoute>
+            <ProtectedRoute onlyUnAuth>
               <ResetPassword />
             </ProtectedRoute>
           }
