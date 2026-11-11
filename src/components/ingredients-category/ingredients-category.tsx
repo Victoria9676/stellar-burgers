@@ -2,17 +2,20 @@ import { IngredientsCategoryUI } from '@ui';
 import { useMemo } from 'react';
 
 import type { TIngredientsCategoryProps } from './type';
-import type { TConstructorState, TIngredient } from '@utils-types';
+import type { TIngredient } from '@utils-types';
 
 export const IngredientsCategory = ({
   title,
   titleRef,
   ingredients,
+  onAdd,
   ref,
 }: TIngredientsCategoryProps): React.JSX.Element => {
   // TODO: Взять переменную из стора
-  const burgerConstructor: TConstructorState = {
-    bun: null,
+  const burgerConstructor = {
+    bun: {
+      _id: ''
+    },
     ingredients: [],
   };
 
@@ -33,6 +36,7 @@ export const IngredientsCategory = ({
       titleRef={titleRef}
       ingredients={ingredients}
       ingredientsCounters={ingredientsCounters}
+      onAdd={onAdd}
       ref={ref}
     />
   );

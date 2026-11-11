@@ -1,11 +1,4 @@
 import {
-  AppHeader,
-  IngredientDetails,
-  Modal,
-  OrderInfo,
-} from '@components';
-import { ProtectedRoute } from '@components/protected-route';
-import {
   ConstructorPage,
   Feed,
   ForgotPassword,
@@ -16,133 +9,93 @@ import {
   Register,
   ResetPassword,
 } from '@pages';
-import { Preloader } from '@ui';
-import { Routes, Route, useLocation, useMatch, useNavigate } from 'react-router-dom';
-
-import type { AppContentProps, DetailPageProps, TLocationState } from './type';
-import type { TIngredient } from '@utils-types';
 
 import '../../index.css';
-
 import styles from './app.module.css';
+import { ProtectedRoute } from '@components/protected-route';
+import { useDispatch } from '../../services/store';
+import { useEffect } from 'react';
+import { getIngredients } from '../../services/slices/slice';
+import { closeIngredientDetails } from '../../services/slices/burger-slice';
+import {
+  AppHeader,
+  IngredientDetails,
+  Modal,
+  OrderInfo,
+} from '@components';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 
 const App = (): React.JSX.Element => {
-  const ingredients: TIngredient[] = [];
-  const isIngredientsLoading = false;
-  const ingredientsError = null;
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getIngredients());
+  }, [dispatch]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const backgroundLocation = location.state?.background;
+  const handleClose = () => {
+    dispatch(closeIngredientDetails());
+    navigate(-1);
+  };
 
   return (
     <div className={styles.app}>
       <AppHeader />
-      <AppContent
-        ingredients={ingredients}
-        isLoading={isIngredientsLoading}
-        error={ingredientsError}
-      />
-    </div>
-  );
-};
 
-export default App;
-
-/* Маршруты показываются только когда ингредиенты загружены: без них не
-   отрисовать ни конструктор, ни состав заказа. */
-const AppContent = ({
-  ingredients,
-  isLoading,
-  error,
-}: AppContentProps): React.JSX.Element => {
-  if (isLoading) {
-    return <Preloader />;
-  }
-
-  if (error) {
-    return (
-      <p className={`${styles.message} text text_type_main-medium`}>
-        Не удалось загрузить ингредиенты
-        {error.message ? `: ${error.message}` : '.'}
-      </p>
-    );
-  }
-
-  if (!ingredients.length) {
-    return (
-      <p className={`${styles.message} text text_type_main-medium`}>Нет ингредиентов</p>
-    );
-  }
-
-  return <RouteComponent />;
-};
-
-const RouteComponent = (): React.JSX.Element => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const backgroundLocation = (location.state as TLocationState)?.background;
-
-  const feedOrderMatch = useMatch('/feed/:number');
-  const profileOrderMatch = useMatch('/profile/orders/:number');
-  const orderNumber = (feedOrderMatch ?? profileOrderMatch)?.params.number ?? '';
-  const orderTitle = `#${orderNumber.padStart(6, '0')}`;
-
-  const handleModalClose = (): void => {
-    void navigate(-1);
-  };
-
-  return (
-    <>
-      <Routes location={backgroundLocation ?? location}>
-        <Route path="/" element={<ConstructorPage />} />
-        <Route path="/feed" element={<Feed />} />
+      <Routes location={backgroundLocation || location}>
+        <Route path='/' element={<ConstructorPage />} />
+        <Route path='/feed' element={<Feed />} />
         <Route
-          path="/feed/:number"
+          path='/feed/:number'
           element={
-            <DetailPage title={orderTitle}>
-              <OrderInfo />
-            </DetailPage>
+            <div className={styles.detailPageWrap}>
+              <OrderInfo />{' '}
+            </div>
           }
         />
         <Route
-          path="/ingredients/:id"
+          path='/ingredients/:id'
           element={
-            <DetailPage title="Детали ингредиента">
+            <div className={styles.detailPageWrap}>
               <IngredientDetails />
-            </DetailPage>
+            </div>
           }
         />
+
         <Route
-          path="/login"
+          path='/login'
           element={
-            <ProtectedRoute onlyUnAuth>
+            <ProtectedRoute>
               <Login />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/register"
+          path='/register'
           element={
-            <ProtectedRoute onlyUnAuth>
+            <ProtectedRoute>
               <Register />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/forgot-password"
+          path='/forgot-password'
           element={
-            <ProtectedRoute onlyUnAuth>
+            <ProtectedRoute>
               <ForgotPassword />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/reset-password"
+          path='/reset-password'
           element={
-            <ProtectedRoute onlyUnAuth>
+            <ProtectedRoute>
               <ResetPassword />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/profile"
+          path='/profile'
           element={
             <ProtectedRoute>
               <Profile />
@@ -150,63 +103,58 @@ const RouteComponent = (): React.JSX.Element => {
           }
         />
         <Route
-          path="/profile/orders"
+          path='/profile/orders'
           element={
             <ProtectedRoute>
               <ProfileOrders />
             </ProtectedRoute>
           }
         />
+
         <Route
-          path="/profile/orders/:number"
+          path='/profile/orders/:number'
           element={
-            <ProtectedRoute>
-              <DetailPage title={orderTitle}>
+            <div className={styles.detailPageWrap}>
+              <ProtectedRoute>
                 <OrderInfo />
-              </DetailPage>
-            </ProtectedRoute>
+              </ProtectedRoute>
+            </div>
           }
         />
-        <Route path="*" element={<NotFound404 />} />
+
+        <Route path='*' element={<NotFound404 />} />
       </Routes>
 
       {backgroundLocation && (
         <Routes>
           <Route
-            path="/feed/:number"
+            path='/feed/:number'
             element={
-              <Modal title={orderTitle} onClose={handleModalClose}>
+              <Modal title='детали заказа' onClose={handleClose}>
                 <OrderInfo />
               </Modal>
             }
           />
           <Route
-            path="/ingredients/:id"
+            path='/ingredients/:id'
             element={
-              <Modal title="Детали ингредиента" onClose={handleModalClose}>
+              <Modal title='Детали ингредиента' onClose={handleClose}>
                 <IngredientDetails />
               </Modal>
             }
           />
           <Route
-            path="/profile/orders/:number"
+            path='/profile/orders/:number'
             element={
-              <ProtectedRoute>
-                <Modal title={orderTitle} onClose={handleModalClose}>
-                  <OrderInfo />
-                </Modal>
-              </ProtectedRoute>
+              <Modal title='детали заказа' onClose={handleClose}>
+                <OrderInfo />
+              </Modal>
             }
           />
         </Routes>
       )}
-    </>
+    </div>
   );
 };
 
-const DetailPage = ({ title, children }: DetailPageProps): React.JSX.Element => (
-  <main className={styles.detailPageWrap}>
-    <h1 className={`${styles.detailHeader} text text_type_main-large`}>{title}</h1>
-    {children}
-  </main>
-);
+export default App;

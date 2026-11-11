@@ -1,16 +1,29 @@
 import { BurgerIngredientsUI } from '@ui';
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
-
+import { addBun, addIngredient } from '../../services/slices/burger-slice';
 import type { TIngredient, TTabMode } from '@utils-types';
+import { useDispatch, useSelector } from '../../services/store';
+import { selectIngredients } from '../../services/slices/slice';
 
 export const BurgerIngredients = (): React.JSX.Element => {
+  const dispatch = useDispatch();
+  const onAdd = (ingredient: TIngredient) => {
+    if (ingredient.type === 'bun') {
+      dispatch(addBun(ingredient));
+    } else {
+      dispatch(addIngredient(ingredient));
+    }
+  };
+  const ingredients = useSelector(selectIngredients);
+  const buns = ingredients.filter((ingredient) => ingredient.type === 'bun');
+  const mains = ingredients.filter((ingredient) => ingredient.type === 'main');
+  const sauces = ingredients.filter((ingredient) => ingredient.type === 'sauce');
+
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
   const titleBunRef = useRef<HTMLHeadingElement>(null);
   const titleMainRef = useRef<HTMLHeadingElement>(null);
   const titleSaucesRef = useRef<HTMLHeadingElement>(null);
-  // TODO: Взять ингредиенты из стора
-  const ingredients: TIngredient[] = [];
 
   const [bunsRef, inViewBuns] = useInView({
     threshold: 0,
@@ -41,21 +54,6 @@ export const BurgerIngredients = (): React.JSX.Element => {
     if (tab === 'sauce') titleSaucesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const buns = useMemo(
-    () => ingredients.filter((item: TIngredient) => item.type === 'bun'),
-    [ingredients]
-  );
-
-  const mains = useMemo(
-    () => ingredients.filter((item: TIngredient) => item.type === 'main'),
-    [ingredients]
-  );
-
-  const sauces = useMemo(
-    () => ingredients.filter((item: TIngredient) => item.type === 'sauce'),
-    [ingredients]
-  );
-
   return (
     <BurgerIngredientsUI
       currentTab={currentTab}
@@ -69,6 +67,7 @@ export const BurgerIngredients = (): React.JSX.Element => {
       mainsRef={mainsRef}
       saucesRef={saucesRef}
       onTabClick={onTabClick}
+      onAdd={onAdd}
     />
   );
 };

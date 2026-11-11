@@ -1,31 +1,38 @@
 import { BurgerConstructorUI } from '@ui';
 import { useMemo } from 'react';
+import { useDispatch, useSelector } from '../../services/store';
+import { orderBurger, closeOrderModal } from '../../services/slices/burger-slice';
 
-import type { TConstructorIngredient, TConstructorState, TOrder } from '@utils-types';
-
-export const BurgerConstructor = (): React.JSX.Element | null => {
-  /** TODO: Взять переменные constructorItems, orderRequest и orderModalData из стора */
-  const constructorItems: TConstructorState = {
-    bun: null,
-    ingredients: [],
-  };
-  const orderRequest = false;
-  const orderModalData: TOrder | null = null;
+export const BurgerConstructor = (): React.JSX.Element => {
+  const dispatch = useDispatch();
+  const constructorItems = useSelector((state) => state.burgerConstructor);
+  const orderRequest = useSelector(
+    (state) => state.burgerConstructor.orderRequest
+  );
+  const orderModalData = useSelector(
+    (state) => state.burgerConstructor.orderModalData
+  );
 
   const onOrderClick = (): void => {
     if (!constructorItems.bun || orderRequest) return;
-    // TODO: Оформить заказ
+    dispatch(
+      orderBurger([
+        constructorItems.bun,
+        ...constructorItems.ingredients,
+        constructorItems.bun
+      ])
+    );
   };
 
-  const closeOrderModal = (): void => {
-    // TODO: Закрыть модальное окно и сбросить заказ
+  const handleCloseOrderModal = (): void => {
+    dispatch(closeOrderModal());
   };
 
   const price = useMemo(
     () =>
       (constructorItems.bun ? constructorItems.bun.price * 2 : 0) +
       constructorItems.ingredients.reduce(
-        (s: number, v: TConstructorIngredient) => s + v.price,
+        (sum, ingredient) => sum + ingredient.price,
         0
       ),
     [constructorItems]
@@ -38,7 +45,7 @@ export const BurgerConstructor = (): React.JSX.Element | null => {
       constructorItems={constructorItems}
       orderModalData={orderModalData}
       onOrderClick={onOrderClick}
-      closeOrderModal={closeOrderModal}
+      closeOrderModal={handleCloseOrderModal}
     />
   );
 };

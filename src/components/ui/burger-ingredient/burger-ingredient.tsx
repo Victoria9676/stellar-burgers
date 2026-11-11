@@ -15,12 +15,13 @@ export const BurgerIngredientUI = memo(function BurgerIngredientUI({
   count,
   handleAdd,
   locationState,
+  handleClick,
 }: TBurgerIngredientUIProps): React.JSX.Element {
   const { image, price, name, _id } = ingredient;
 
   return (
     <li className={styles.container}>
-      <Link className={styles.article} to={`/ingredients/${_id}`} state={locationState}>
+      <Link className={styles.article} to={`/ingredients/${_id}`} state={locationState} onClick={handleClick}>
         {count && <Counter count={count} />}
         <img src={image} alt="картинка ингредиента." />
         <div className={`${styles.cost} mt-2 mb-2`}>

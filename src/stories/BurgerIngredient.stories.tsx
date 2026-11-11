@@ -52,5 +52,6 @@ export const DefaultIngredient: Story = {
       },
     },
     handleAdd: fn(),
+    handleClick: fn(),
   },
 };
