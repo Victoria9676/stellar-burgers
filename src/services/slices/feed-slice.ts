@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { getFeedsApi } from '@api';
+import { getFeedsApi, getOrderByNumberApi } from '@api';
 import type { TOrder } from '@utils-types';
 import type { RootState } from '../../services/store';
-import { orderBurger } from './burger-slice';
 
 export type FeedState = {
   orders: TOrder[];
@@ -10,6 +9,8 @@ export type FeedState = {
   totalToday: number;
   isLoading: boolean;
   error: string | null;
+  orderByNumber: TOrder | null;
+  isOrderLoading: boolean;
 };
 
 const initialState: FeedState = {
@@ -17,10 +18,17 @@ const initialState: FeedState = {
   total: 0,
   totalToday: 0,
   isLoading: false,
-  error: null
+  error: null,
+  orderByNumber: null,
+  isOrderLoading: false,
 };
 
 export const getFeeds = createAsyncThunk('feed/getFeeds', getFeedsApi);
+
+export const getOrderByNumber = createAsyncThunk(
+  'feed/getOrderByNumber',
+  getOrderByNumberApi
+);
 
 const feedSlice = createSlice({
   name: 'feed',
@@ -36,17 +44,7 @@ const feedSlice = createSlice({
 
     builder.addCase(getFeeds.fulfilled, (state, action) => {
       state.isLoading = false;
-
-      const serverOrders = action.payload.orders;
-
-      const existingOrders = state.orders.filter(
-        (existingOrder) =>
-          !serverOrders.some(
-            (serverOrder) => serverOrder._id === existingOrder._id
-          )
-      );
-
-      state.orders = [...existingOrders, ...serverOrders];
+      state.orders = action.payload.orders;
       state.total = action.payload.total;
       state.totalToday = action.payload.totalToday;
     });
@@ -55,24 +53,19 @@ const feedSlice = createSlice({
       state.isLoading = false;
       state.error = action.error.message || 'Произошла ошибка';
     });
-
-    builder.addCase(orderBurger.fulfilled, (state, action) => {
-      const ingredients = action.meta.arg.map((ingredient) => ingredient._id);
-
-      const newOrder: TOrder = {
-        ...action.payload.order,
-        name: action.payload.name,
-        status: 'pending',
-        ingredients,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      state.orders = [newOrder, ...state.orders];
-      state.total += 1;
-      state.totalToday += 1;
+    builder.addCase(getOrderByNumber.pending, (state) => {
+      state.isOrderLoading = true;
     });
-  }
+
+    builder.addCase(getOrderByNumber.fulfilled, (state, action) => {
+      state.isOrderLoading = false;
+      state.orderByNumber = action.payload.orders[0];
+    });
+
+    builder.addCase(getOrderByNumber.rejected, (state) => {
+      state.isOrderLoading = false;
+    });
+  },
 });
 
 export const selectFeedOrders = (state: RootState) => state.feed.orders;
@@ -84,6 +77,10 @@ export const selectFeedError = (state: RootState) => state.feed.error;
 export const selectFeedTotal = (state: RootState) => state.feed.total;
 
 export const selectFeedTotalToday = (state: RootState) => state.feed.totalToday;
+
+export const selectOrderByNumber = (state: RootState) => state.feed.orderByNumber;
+
+export const selectOrderLoading = (state: RootState) => state.feed.isOrderLoading;
 
 export const selectFeedState = (state: RootState) => state.feed;
 

@@ -8,12 +8,8 @@ export const BurgerConstructor = (): React.JSX.Element => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const constructorItems = useSelector((state) => state.burgerConstructor);
-  const orderRequest = useSelector(
-    (state) => state.burgerConstructor.orderRequest
-  );
-  const orderModalData = useSelector(
-    (state) => state.burgerConstructor.orderModalData
-  );
+  const orderRequest = useSelector((state) => state.burgerConstructor.orderRequest);
+  const orderModalData = useSelector((state) => state.burgerConstructor.orderModalData);
   const user = useSelector((state) => state.auth.user);
 
   const onOrderClick = (): void => {
@@ -22,8 +18,8 @@ export const BurgerConstructor = (): React.JSX.Element => {
     if (!user) {
       navigate('/login', {
         state: {
-          from: '/'
-        }
+          from: '/',
+        },
       });
       return;
     }
@@ -32,7 +28,7 @@ export const BurgerConstructor = (): React.JSX.Element => {
       orderBurger([
         constructorItems.bun,
         ...constructorItems.ingredients,
-        constructorItems.bun
+        constructorItems.bun,
       ])
     );
   };

@@ -18,12 +18,7 @@ import { useEffect } from 'react';
 import { getIngredients } from '../../services/slices/slice';
 import { closeIngredientDetails } from '../../services/slices/burger-slice';
 import { getUser } from '../../services/slices/auth-slice';
-import {
-  AppHeader,
-  IngredientDetails,
-  Modal,
-  OrderInfo,
-} from '@components';
+import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 
 const App = (): React.JSX.Element => {
@@ -47,10 +42,10 @@ const App = (): React.JSX.Element => {
       <AppHeader />
 
       <Routes location={backgroundLocation || location}>
-        <Route path='/' element={<ConstructorPage />} />
-        <Route path='/feed' element={<Feed />} />
+        <Route path="/" element={<ConstructorPage />} />
+        <Route path="/feed" element={<Feed />} />
         <Route
-          path='/feed/:number'
+          path="/feed/:number"
           element={
             <div className={styles.detailPageWrap}>
               <OrderInfo />{' '}
@@ -58,7 +53,7 @@ const App = (): React.JSX.Element => {
           }
         />
         <Route
-          path='/ingredients/:id'
+          path="/ingredients/:id"
           element={
             <div className={styles.detailPageWrap}>
               <IngredientDetails />
@@ -67,7 +62,7 @@ const App = (): React.JSX.Element => {
         />
 
         <Route
-          path='/login'
+          path="/login"
           element={
             <ProtectedRoute onlyUnAuth>
               <Login />
@@ -75,7 +70,7 @@ const App = (): React.JSX.Element => {
           }
         />
         <Route
-          path='/register'
+          path="/register"
           element={
             <ProtectedRoute onlyUnAuth>
               <Register />
@@ -83,7 +78,7 @@ const App = (): React.JSX.Element => {
           }
         />
         <Route
-          path='/forgot-password'
+          path="/forgot-password"
           element={
             <ProtectedRoute onlyUnAuth>
               <ForgotPassword />
@@ -91,7 +86,7 @@ const App = (): React.JSX.Element => {
           }
         />
         <Route
-          path='/reset-password'
+          path="/reset-password"
           element={
             <ProtectedRoute onlyUnAuth>
               <ResetPassword />
@@ -99,7 +94,7 @@ const App = (): React.JSX.Element => {
           }
         />
         <Route
-          path='/profile'
+          path="/profile"
           element={
             <ProtectedRoute>
               <Profile />
@@ -107,7 +102,7 @@ const App = (): React.JSX.Element => {
           }
         />
         <Route
-          path='/profile/orders'
+          path="/profile/orders"
           element={
             <ProtectedRoute>
               <ProfileOrders />
@@ -116,7 +111,7 @@ const App = (): React.JSX.Element => {
         />
 
         <Route
-          path='/profile/orders/:number'
+          path="/profile/orders/:number"
           element={
             <div className={styles.detailPageWrap}>
               <ProtectedRoute>
@@ -126,31 +121,31 @@ const App = (): React.JSX.Element => {
           }
         />
 
-        <Route path='*' element={<NotFound404 />} />
+        <Route path="*" element={<NotFound404 />} />
       </Routes>
 
       {backgroundLocation && (
         <Routes>
           <Route
-            path='/feed/:number'
+            path="/feed/:number"
             element={
-              <Modal title='детали заказа' onClose={handleClose}>
+              <Modal title="детали заказа" onClose={handleClose}>
                 <OrderInfo />
               </Modal>
             }
           />
           <Route
-            path='/ingredients/:id'
+            path="/ingredients/:id"
             element={
-              <Modal title='Детали ингредиента' onClose={handleClose}>
+              <Modal title="Детали ингредиента" onClose={handleClose}>
                 <IngredientDetails />
               </Modal>
             }
           />
           <Route
-            path='/profile/orders/:number'
+            path="/profile/orders/:number"
             element={
-              <Modal title='детали заказа' onClose={handleClose}>
+              <Modal title="детали заказа" onClose={handleClose}>
                 <OrderInfo />
               </Modal>
             }

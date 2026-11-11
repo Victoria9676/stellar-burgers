@@ -12,13 +12,10 @@ export type ProfileOrdersState = {
 const initialState: ProfileOrdersState = {
   orders: [],
   isLoading: false,
-  error: null
+  error: null,
 };
 
-export const getOrders = createAsyncThunk(
-  'profileOrders/getOrders',
-  getOrdersApi
-);
+export const getOrders = createAsyncThunk('profileOrders/getOrders', getOrdersApi);
 
 const profileOrdersSlice = createSlice({
   name: 'profileOrders',
@@ -37,18 +34,15 @@ const profileOrdersSlice = createSlice({
 
     builder.addCase(getOrders.rejected, (state, action) => {
       state.isLoading = false;
-      state.error =
-        action.error.message || 'Не удалось загрузить историю заказов';
+      state.error = action.error.message || 'Не удалось загрузить историю заказов';
     });
-  }
+  },
 });
 
 export const selectProfileOrders = (state: RootState) => state.orders.orders;
 
-export const selectProfileOrdersLoading = (state: RootState) =>
-  state.orders.isLoading;
+export const selectProfileOrdersLoading = (state: RootState) => state.orders.isLoading;
 
-export const selectProfileOrdersError = (state: RootState) =>
-  state.orders.error;
+export const selectProfileOrdersError = (state: RootState) => state.orders.error;
 
 export default profileOrdersSlice.reducer;

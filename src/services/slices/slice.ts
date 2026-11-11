@@ -13,13 +13,10 @@ export type IngredientsState = {
 const initialState: IngredientsState = {
   ingredients: [],
   isLoading: false,
-  error: null
+  error: null,
 };
 
-export const getIngredients = createAsyncThunk(
-  'ingredients',
-  getIngredientsApi
-);
+export const getIngredients = createAsyncThunk('ingredients', getIngredientsApi);
 
 const slice = createSlice({
   name: 'ingredients',
@@ -37,16 +34,14 @@ const slice = createSlice({
       state.isLoading = false;
       state.error = action.error.message || 'произошла ошибка';
     });
-  }
+  },
 });
 
-export const selectIngredients = (state: RootState) =>
-  state.ingredients.ingredients;
+export const selectIngredients = (state: RootState) => state.ingredients.ingredients;
 
 export const selectIngredientsLoading = (state: RootState) =>
   state.ingredients.isLoading;
 
-export const selectIngredientsError = (state: RootState) =>
-  state.ingredients.error;
+export const selectIngredientsError = (state: RootState) => state.ingredients.error;
 
 export default slice.reducer;

@@ -5,7 +5,10 @@ import { Preloader } from '@ui';
 import { useSelector } from '../../services/store';
 import { selectIsAuthChecked, selectUser } from '../../services/slices//auth-slice';
 
-export const ProtectedRoute = ({ onlyUnAuth, children }: TProtectedRouteProps): React.JSX.Element => {
+export const ProtectedRoute = ({
+  onlyUnAuth,
+  children,
+}: TProtectedRouteProps): React.JSX.Element => {
   const isAuthChecked = useSelector(selectIsAuthChecked);
   const user = useSelector(selectUser);
 
@@ -16,7 +19,7 @@ export const ProtectedRoute = ({ onlyUnAuth, children }: TProtectedRouteProps): 
   }
 
   if (!onlyUnAuth && !user) {
-    return <Navigate replace to='/login' state={{ from: location }} />;
+    return <Navigate replace to="/login" state={{ from: location }} />;
   }
 
   if (onlyUnAuth && user) {

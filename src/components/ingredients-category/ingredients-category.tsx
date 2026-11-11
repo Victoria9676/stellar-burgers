@@ -12,7 +12,6 @@ export const IngredientsCategory = ({
   onAdd,
   ref,
 }: TIngredientsCategoryProps): React.JSX.Element => {
-  // TODO: Взять переменную из стора
   const burgerConstructor = useSelector((state) => state.burgerConstructor);
 
   const ingredientsCounters = useMemo(() => {

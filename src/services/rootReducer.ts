@@ -5,12 +5,10 @@ import feedReducer from './slices/feed-slice';
 import ordersReducer from './slices/profile-slice';
 import authReducer from './slices/auth-slice';
 
-// TODO: Заменить на настоящий корневой редьюсер
 export const rootReducer = combineReducers({
-  // TODO: Собрать здесь редьюсеры слайсов
   ingredients: ingredientsReducer,
   burgerConstructor: burgerConstructorReducer,
   feed: feedReducer,
   orders: ordersReducer,
-  auth: authReducer
+  auth: authReducer,
 });

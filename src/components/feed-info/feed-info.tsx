@@ -17,14 +17,10 @@ export const FeedInfo = (): React.JSX.Element => {
 
   const pendingOrders = [
     ...getOrders(feed.orders, 'created'),
-    ...getOrders(feed.orders, 'pending')
+    ...getOrders(feed.orders, 'pending'),
   ].slice(0, 20);
 
   return (
-    <FeedInfoUI
-      readyOrders={readyOrders}
-      pendingOrders={pendingOrders}
-      feed={feed}
-    />
+    <FeedInfoUI readyOrders={readyOrders} pendingOrders={pendingOrders} feed={feed} />
   );
 };

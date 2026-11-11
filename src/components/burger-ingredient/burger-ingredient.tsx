@@ -9,19 +9,18 @@ import type { TBurgerIngredientProps } from './type';
 export const BurgerIngredient = memo(function BurgerIngredient({
   ingredient,
   count,
-  onAdd
+  onAdd,
 }: TBurgerIngredientProps): React.JSX.Element {
   const location = useLocation();
   const dispatch = useDispatch();
 
   const handleAdd = (): void => {
-    // TODO: Добавить ингредиент в конструктор
     onAdd(ingredient);
   };
 
   const handleClick = () => {
-      dispatch(openIngredientDetails(ingredient));
-    };
+    dispatch(openIngredientDetails(ingredient));
+  };
 
   return (
     <BurgerIngredientUI

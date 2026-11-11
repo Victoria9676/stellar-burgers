@@ -5,7 +5,7 @@ import { rootReducer } from './rootReducer';
 
 const store = configureStore({
   reducer: rootReducer,
-  devTools: import.meta.env.DEV
+  devTools: import.meta.env.DEV,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

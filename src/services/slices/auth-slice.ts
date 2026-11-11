@@ -5,7 +5,7 @@ import {
   getUserApi,
   registerUserApi,
   updateUserApi,
-  logoutApi
+  logoutApi,
 } from '@api';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { setCookie, deleteCookie } from '../../utils/cookie';
@@ -22,7 +22,7 @@ const initialState: AuthState = {
   user: null,
   isAuthChecked: false,
   isLoading: false,
-  error: null
+  error: null,
 };
 
 export const login = createAsyncThunk('auth/login', loginUserApi);
@@ -122,13 +122,12 @@ const authSlice = createSlice({
       state.isLoading = false;
       state.user = null;
     });
-  }
+  },
 });
 
 export const selectUser = (state: RootState) => state.auth.user;
 
-export const selectIsAuthChecked = (state: RootState) =>
-  state.auth.isAuthChecked;
+export const selectIsAuthChecked = (state: RootState) => state.auth.isAuthChecked;
 
 export const selectAuthLoading = (state: RootState) => state.auth.isLoading;
 

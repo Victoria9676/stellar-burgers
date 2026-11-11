@@ -1,5 +1,5 @@
 import { ProfileUI } from '@ui-pages';
-import { type SyntheticEvent, useState } from 'react';
+import { type SyntheticEvent, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
 import { selectUser, updateUser } from '../../services/slices/auth-slice';
 
@@ -12,6 +12,14 @@ export const Profile = (): React.JSX.Element => {
     email: user?.email || '',
     password: '',
   });
+  useEffect(() => {
+    setFormValue((prevState) => ({
+      ...prevState,
+      name: user?.name ?? '',
+      email: user?.email ?? '',
+      password: ''
+    }));
+  }, [user]);
 
   const isFormChanged =
     formValue.name !== (user?.name || '') ||
