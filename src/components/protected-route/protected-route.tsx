@@ -1,9 +1,12 @@
-import * as React from 'react';
-import type { TProtectedRouteProps } from './type';
-import { Navigate, useLocation } from 'react-router-dom';
 import { Preloader } from '@ui';
+import { Navigate, useLocation } from 'react-router-dom';
+
+import { selectIsAuthChecked, selectUser } from '../../services/slices/auth-slice';
 import { useSelector } from '../../services/store';
-import { selectIsAuthChecked, selectUser } from '../../services/slices//auth-slice';
+
+import type { TLocationState } from '../../utils/types';
+import type { TProtectedRouteProps } from './type';
+import type * as React from 'react';
 
 export const ProtectedRoute = ({
   onlyUnAuth,
@@ -19,11 +22,11 @@ export const ProtectedRoute = ({
   }
 
   if (!onlyUnAuth && !user) {
-    return <Navigate replace to="/login" state={{ from: location }} />;
+    return <Navigate replace to="/login" state={{ from: location } as TLocationState} />;
   }
 
   if (onlyUnAuth && user) {
-    const from = location.state?.from || { pathname: '/' };
+    const from = (location.state as TLocationState)?.from ?? '/';
 
     return <Navigate replace to={from} />;
   }

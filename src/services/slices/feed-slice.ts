@@ -1,7 +1,8 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { getFeedsApi, getOrderByNumberApi } from '@api';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+
+import type { RootState } from '../store';
 import type { TOrder } from '@utils-types';
-import type { RootState } from '../../services/store';
 
 export type FeedState = {
   orders: TOrder[];
@@ -33,9 +34,7 @@ export const getOrderByNumber = createAsyncThunk(
 const feedSlice = createSlice({
   name: 'feed',
   initialState,
-
   reducers: {},
-
   extraReducers: (builder) => {
     builder.addCase(getFeeds.pending, (state) => {
       state.isLoading = true;
@@ -51,8 +50,9 @@ const feedSlice = createSlice({
 
     builder.addCase(getFeeds.rejected, (state, action) => {
       state.isLoading = false;
-      state.error = action.error.message || 'Произошла ошибка';
+      state.error = action.error.message ?? 'Произошла ошибка';
     });
+
     builder.addCase(getOrderByNumber.pending, (state) => {
       state.isOrderLoading = true;
     });
@@ -68,20 +68,22 @@ const feedSlice = createSlice({
   },
 });
 
-export const selectFeedOrders = (state: RootState) => state.feed.orders;
+export const selectFeedOrders = (state: RootState): TOrder[] => state.feed.orders;
 
-export const selectFeedLoading = (state: RootState) => state.feed.isLoading;
+export const selectFeedLoading = (state: RootState): boolean => state.feed.isLoading;
 
-export const selectFeedError = (state: RootState) => state.feed.error;
+export const selectFeedError = (state: RootState): string | null => state.feed.error;
 
-export const selectFeedTotal = (state: RootState) => state.feed.total;
+export const selectFeedTotal = (state: RootState): number => state.feed.total;
 
-export const selectFeedTotalToday = (state: RootState) => state.feed.totalToday;
+export const selectFeedTotalToday = (state: RootState): number => state.feed.totalToday;
 
-export const selectOrderByNumber = (state: RootState) => state.feed.orderByNumber;
+export const selectOrderByNumber = (state: RootState): TOrder | null =>
+  state.feed.orderByNumber;
 
-export const selectOrderLoading = (state: RootState) => state.feed.isOrderLoading;
+export const selectOrderLoading = (state: RootState): boolean =>
+  state.feed.isOrderLoading;
 
-export const selectFeedState = (state: RootState) => state.feed;
+export const selectFeedState = (state: RootState): FeedState => state.feed;
 
 export default feedSlice.reducer;

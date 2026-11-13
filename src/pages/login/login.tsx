@@ -1,7 +1,12 @@
 import { LoginUI } from '@ui-pages';
-import { type SyntheticEvent, useState } from 'react';
+import { type SyntheticEvent, useEffect, useState } from 'react';
+
+import {
+  clearAuthError,
+  login,
+  selectAuthError,
+} from '../../services/slices/auth-slice';
 import { useDispatch, useSelector } from '../../services/store';
-import { login, selectAuthError } from '../../services/slices/auth-slice';
 
 export const Login = (): React.JSX.Element => {
   const [email, setEmail] = useState('');
@@ -9,12 +14,16 @@ export const Login = (): React.JSX.Element => {
   const dispatch = useDispatch();
   const error = useSelector(selectAuthError);
 
+  useEffect(() => {
+    dispatch(clearAuthError());
+  }, [dispatch]);
+
   const handleSubmit = (e: SyntheticEvent): void => {
     e.preventDefault();
-    dispatch(
+    void dispatch(
       login({
         email,
-        password
+        password,
       })
     );
   };

@@ -1,57 +1,59 @@
 import { BurgerConstructorUI } from '@ui';
 import { useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import { selectUser } from '../../services/slices/auth-slice';
+import {
+  selectConstructorBun,
+  selectConstructorIngredients,
+} from '../../services/slices/burger-slice';
+import {
+  orderBurger,
+  closeOrderModal,
+  selectOrderRequest,
+  selectOrderModalData,
+} from '../../services/slices/new-order-slice';
 import { useDispatch, useSelector } from '../../services/store';
-import { orderBurger, closeOrderModal } from '../../services/slices/burger-slice';
-import { useNavigate } from 'react-router-dom';
 
 export const BurgerConstructor = (): React.JSX.Element => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const constructorItems = useSelector((state) => state.burgerConstructor);
-  const orderRequest = useSelector((state) => state.burgerConstructor.orderRequest);
-  const orderModalData = useSelector((state) => state.burgerConstructor.orderModalData);
-  const user = useSelector((state) => state.auth.user);
+  const location = useLocation();
+  const bun = useSelector(selectConstructorBun);
+  const ingredients = useSelector(selectConstructorIngredients);
+  const orderRequest = useSelector(selectOrderRequest);
+  const orderModalData = useSelector(selectOrderModalData);
+  const user = useSelector(selectUser);
 
   const onOrderClick = (): void => {
-    if (!constructorItems.bun || orderRequest) return;
+    if (!bun || orderRequest) return;
 
     if (!user) {
-      navigate('/login', {
-        state: {
-          from: '/',
-        },
+      void navigate('/login', {
+        state: { from: location },
       });
       return;
     }
 
-    dispatch(
-      orderBurger([
-        constructorItems.bun,
-        ...constructorItems.ingredients,
-        constructorItems.bun,
-      ])
-    );
+    void dispatch(orderBurger([bun, ...ingredients, bun]));
   };
 
   const handleCloseOrderModal = (): void => {
-    dispatch(closeOrderModal());
+    void dispatch(closeOrderModal());
   };
 
   const price = useMemo(
     () =>
-      (constructorItems.bun ? constructorItems.bun.price * 2 : 0) +
-      constructorItems.ingredients.reduce(
-        (sum, ingredient) => sum + ingredient.price,
-        0
-      ),
-    [constructorItems]
+      (bun ? bun.price * 2 : 0) +
+      ingredients.reduce((sum, ingredient) => sum + ingredient.price, 0),
+    [bun, ingredients]
   );
 
   return (
     <BurgerConstructorUI
       price={price}
       orderRequest={orderRequest}
-      constructorItems={constructorItems}
+      constructorItems={{ bun, ingredients }}
       orderModalData={orderModalData}
       onOrderClick={onOrderClick}
       closeOrderModal={handleCloseOrderModal}

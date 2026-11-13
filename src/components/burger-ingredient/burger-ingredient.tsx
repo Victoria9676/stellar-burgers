@@ -1,34 +1,26 @@
 import { BurgerIngredientUI } from '@ui';
 import { memo } from 'react';
-import { useLocation } from 'react-router-dom';
+
+import { addBun, addIngredient } from '../../services/slices/burger-slice';
 import { useDispatch } from '../../services/store';
-import { openIngredientDetails } from '../../services/slices/burger-slice';
 
 import type { TBurgerIngredientProps } from './type';
 
 export const BurgerIngredient = memo(function BurgerIngredient({
   ingredient,
   count,
-  onAdd,
 }: TBurgerIngredientProps): React.JSX.Element {
-  const location = useLocation();
   const dispatch = useDispatch();
 
   const handleAdd = (): void => {
-    onAdd(ingredient);
-  };
-
-  const handleClick = () => {
-    dispatch(openIngredientDetails(ingredient));
+    if (ingredient.type === 'bun') {
+      dispatch(addBun(ingredient));
+    } else {
+      dispatch(addIngredient(ingredient));
+    }
   };
 
   return (
-    <BurgerIngredientUI
-      ingredient={ingredient}
-      count={count}
-      locationState={{ background: location }}
-      handleAdd={handleAdd}
-      handleClick={handleClick}
-    />
+    <BurgerIngredientUI ingredient={ingredient} count={count} handleAdd={handleAdd} />
   );
 });

@@ -1,4 +1,5 @@
 import { BurgerIngredientUI } from '@ui';
+import { MemoryRouter } from 'react-router-dom';
 import { fn } from 'storybook/test';
 
 import ingredientImage from './assets/ingredient-placeholder.svg';
@@ -16,9 +17,11 @@ const meta = {
   },
   decorators: [
     (Story): React.JSX.Element => (
-      <ul style={{ width: 'fit-content', margin: 20, listStyle: 'none', padding: 0 }}>
-        <Story />
-      </ul>
+      <MemoryRouter>
+        <ul style={{ width: 'fit-content', margin: 20, listStyle: 'none', padding: 0 }}>
+          <Story />
+        </ul>
+      </MemoryRouter>
     ),
   ],
 } satisfies Meta<typeof BurgerIngredientUI>;
@@ -42,16 +45,6 @@ export const DefaultIngredient: Story = {
       image_mobile: ingredientImage,
     },
     count: 2,
-    locationState: {
-      background: {
-        hash: '',
-        key: 'eitkep27',
-        pathname: '/',
-        search: '',
-        state: null,
-      },
-    },
     handleAdd: fn(),
-    handleClick: fn(),
   },
 };

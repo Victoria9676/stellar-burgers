@@ -1,5 +1,3 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { type TUser } from '@utils-types';
 import {
   loginUserApi,
   getUserApi,
@@ -7,9 +5,13 @@ import {
   updateUserApi,
   logoutApi,
 } from '@api';
-import { createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
 import { setCookie, deleteCookie } from '../../utils/cookie';
-import { type RootState } from '../../services/store';
+
+import type { TLoginData, TRegisterData } from '../../utils/burger-api';
+import type { RootState } from '../store';
+import type { TUser } from '@utils-types';
 
 type AuthState = {
   user: TUser | null;
@@ -25,20 +27,44 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const login = createAsyncThunk('auth/login', loginUserApi);
+export const login = createAsyncThunk('auth/login', async (data: TLoginData) => {
+  const result = await loginUserApi(data);
+  localStorage.setItem('refreshToken', result.refreshToken);
+  setCookie('accessToken', result.accessToken);
+  return result;
+});
 
-export const register = createAsyncThunk('auth/register', registerUserApi);
+export const register = createAsyncThunk(
+  'auth/register',
+  async (data: TRegisterData) => {
+    const result = await registerUserApi(data);
+    localStorage.setItem('refreshToken', result.refreshToken);
+    setCookie('accessToken', result.accessToken);
+    return result;
+  }
+);
 
 export const updateUser = createAsyncThunk('auth/updateUser', updateUserApi);
 
-export const logout = createAsyncThunk('auth/logout', logoutApi);
+export const logout = createAsyncThunk('auth/logout', async () => {
+  await logoutApi();
+  localStorage.removeItem('refreshToken');
+  deleteCookie('accessToken');
+});
 
 export const getUser = createAsyncThunk('auth/getUser', getUserApi);
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    setAuthChecked: (state) => {
+      state.isAuthChecked = true;
+    },
+    clearAuthError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(login.pending, (state) => {
       state.isLoading = true;
@@ -46,9 +72,6 @@ const authSlice = createSlice({
     });
 
     builder.addCase(login.fulfilled, (state, action) => {
-      localStorage.setItem('refreshToken', action.payload.refreshToken);
-      setCookie('accessToken', action.payload.accessToken);
-
       state.user = action.payload.user;
       state.isAuthChecked = true;
       state.isLoading = false;
@@ -57,7 +80,7 @@ const authSlice = createSlice({
 
     builder.addCase(login.rejected, (state, action) => {
       state.isLoading = false;
-      state.error = action.error.message || 'error';
+      state.error = action.error.message ?? 'error';
     });
 
     builder.addCase(register.pending, (state) => {
@@ -66,9 +89,6 @@ const authSlice = createSlice({
     });
 
     builder.addCase(register.fulfilled, (state, action) => {
-      localStorage.setItem('refreshToken', action.payload.refreshToken);
-      setCookie('accessToken', action.payload.accessToken);
-
       state.user = action.payload.user;
       state.isAuthChecked = true;
       state.isLoading = false;
@@ -77,7 +97,7 @@ const authSlice = createSlice({
 
     builder.addCase(register.rejected, (state, action) => {
       state.isLoading = false;
-      state.error = action.error.message || 'error';
+      state.error = action.error.message ?? 'error';
     });
 
     builder.addCase(updateUser.pending, (state) => {
@@ -93,13 +113,10 @@ const authSlice = createSlice({
 
     builder.addCase(updateUser.rejected, (state, action) => {
       state.isLoading = false;
-      state.error = action.error.message || 'error';
+      state.error = action.error.message ?? 'error';
     });
 
     builder.addCase(logout.fulfilled, (state) => {
-      localStorage.removeItem('refreshToken');
-      deleteCookie('accessToken');
-
       state.user = null;
       state.isAuthChecked = true;
       state.isLoading = false;
@@ -125,12 +142,15 @@ const authSlice = createSlice({
   },
 });
 
-export const selectUser = (state: RootState) => state.auth.user;
+export const { setAuthChecked, clearAuthError } = authSlice.actions;
 
-export const selectIsAuthChecked = (state: RootState) => state.auth.isAuthChecked;
+export const selectUser = (state: RootState): TUser | null => state.auth.user;
 
-export const selectAuthLoading = (state: RootState) => state.auth.isLoading;
+export const selectIsAuthChecked = (state: RootState): boolean =>
+  state.auth.isAuthChecked;
 
-export const selectAuthError = (state: RootState) => state.auth.error;
+export const selectAuthLoading = (state: RootState): boolean => state.auth.isLoading;
+
+export const selectAuthError = (state: RootState): string | null => state.auth.error;
 
 export default authSlice.reducer;

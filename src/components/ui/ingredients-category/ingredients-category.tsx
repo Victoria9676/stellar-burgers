@@ -9,7 +9,6 @@ export const IngredientsCategoryUI = ({
   titleRef,
   ingredients,
   ingredientsCounters,
-  onAdd,
   ref,
   ...rest
 }: TIngredientsCategoryUIProps): React.JSX.Element => (
@@ -23,7 +22,6 @@ export const IngredientsCategoryUI = ({
           ingredient={ingredient}
           key={ingredient._id}
           count={ingredientsCounters[ingredient._id]}
-          onAdd={onAdd}
         />
       ))}
     </ul>

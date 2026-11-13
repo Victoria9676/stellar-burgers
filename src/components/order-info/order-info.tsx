@@ -2,9 +2,6 @@ import { Preloader, OrderInfoUI } from '@ui';
 import { useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
-import type { TIngredient } from '@utils-types';
-import { useDispatch, useSelector } from '../../services/store';
-import { selectIngredients } from '../../services/slices/slice';
 import {
   getOrderByNumber,
   selectFeedOrders,
@@ -12,6 +9,10 @@ import {
   selectOrderLoading,
 } from '../../services/slices/feed-slice';
 import { selectProfileOrders } from '../../services/slices/profile-slice';
+import { selectIngredients } from '../../services/slices/slice';
+import { useDispatch, useSelector } from '../../services/store';
+
+import type { TIngredient } from '@utils-types';
 
 export const OrderInfo = (): React.JSX.Element => {
   const { number } = useParams();
@@ -23,13 +24,13 @@ export const OrderInfo = (): React.JSX.Element => {
   const isOrderLoading = useSelector(selectOrderLoading);
 
   const orderData =
-    feedOrders.find((order) => order.number === Number(number)) ||
-    profileOrders.find((order) => order.number === Number(number)) ||
+    feedOrders.find((order) => order.number === Number(number)) ??
+    profileOrders.find((order) => order.number === Number(number)) ??
     orderByNumber;
 
   useEffect(() => {
     if (!orderData && number) {
-      dispatch(getOrderByNumber(Number(number)));
+      void dispatch(getOrderByNumber(Number(number)));
     }
   }, [dispatch, orderData, number]);
 

@@ -8,6 +8,7 @@ import styles from './feed.module.css';
 
 export const FeedUI = memo(function FeedUI({
   orders,
+  error,
   handleGetFeeds,
 }: FeedUIProps): React.JSX.Element {
   return (
@@ -18,7 +19,13 @@ export const FeedUI = memo(function FeedUI({
       </div>
       <div className={styles.main}>
         <div className={styles.columnOrders}>
-          <OrdersList orders={orders} />
+          {error ? (
+            <p className="text text_type_main-medium mt-10 mb-10">
+              Не удалось загрузить заказы. Попробуйте ещё раз.
+            </p>
+          ) : (
+            <OrdersList orders={orders} />
+          )}
         </div>
         <div className={styles.columnInfo}>
           <FeedInfo />
