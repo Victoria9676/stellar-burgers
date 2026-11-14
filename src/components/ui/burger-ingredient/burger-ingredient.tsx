@@ -4,7 +4,7 @@ import {
   AddButton,
 } from '@krgaa/react-developer-burger-ui-components';
 import { memo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import type { TBurgerIngredientUIProps } from './type';
 
@@ -14,13 +14,17 @@ export const BurgerIngredientUI = memo(function BurgerIngredientUI({
   ingredient,
   count,
   handleAdd,
-  locationState,
 }: TBurgerIngredientUIProps): React.JSX.Element {
   const { image, price, name, _id } = ingredient;
+  const location = useLocation();
 
   return (
     <li className={styles.container}>
-      <Link className={styles.article} to={`/ingredients/${_id}`} state={locationState}>
+      <Link
+        className={styles.article}
+        to={`/ingredients/${_id}`}
+        state={{ background: location }}
+      >
         {count && <Counter count={count} />}
         <img src={image} alt="картинка ингредиента." />
         <div className={`${styles.cost} mt-2 mb-2`}>

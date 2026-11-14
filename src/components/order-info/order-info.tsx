@@ -1,26 +1,39 @@
 import { Preloader, OrderInfoUI } from '@ui';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+
+import {
+  getOrderByNumber,
+  selectFeedOrders,
+  selectOrderByNumber,
+  selectOrderLoading,
+} from '../../services/slices/feed-slice';
+import { selectProfileOrders } from '../../services/slices/profile-slice';
+import { selectIngredients } from '../../services/slices/slice';
+import { useDispatch, useSelector } from '../../services/store';
 
 import type { TIngredient } from '@utils-types';
 
 export const OrderInfo = (): React.JSX.Element => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0,
-  };
+  const { number } = useParams();
+  const dispatch = useDispatch();
+  const ingredients = useSelector(selectIngredients);
+  const feedOrders = useSelector(selectFeedOrders);
+  const profileOrders = useSelector(selectProfileOrders);
+  const orderByNumber = useSelector(selectOrderByNumber);
+  const isOrderLoading = useSelector(selectOrderLoading);
 
-  const ingredients: TIngredient[] = [];
+  const orderData =
+    feedOrders.find((order) => order.number === Number(number)) ??
+    profileOrders.find((order) => order.number === Number(number)) ??
+    orderByNumber;
 
-  /**
-   * использование useMemo не обязательно
-   */
-  /* Готовим данные для отображения */
+  useEffect(() => {
+    if (!orderData && number) {
+      void dispatch(getOrderByNumber(Number(number)));
+    }
+  }, [dispatch, orderData, number]);
+
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
@@ -29,7 +42,7 @@ export const OrderInfo = (): React.JSX.Element => {
     type TIngredientsWithCount = Record<string, TIngredient & { count: number }>;
 
     const ingredientsInfo = orderData.ingredients.reduce(
-      (acc: TIngredientsWithCount, item) => {
+      (acc: TIngredientsWithCount, item: string) => {
         if (!acc[item]) {
           const ingredient = ingredients.find((ing) => ing._id === item);
           if (ingredient) {
@@ -60,7 +73,7 @@ export const OrderInfo = (): React.JSX.Element => {
     };
   }, [orderData, ingredients]);
 
-  if (!orderInfo) {
+  if (isOrderLoading || !orderInfo) {
     return <Preloader />;
   }
 
