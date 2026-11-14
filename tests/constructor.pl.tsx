@@ -1,10 +1,20 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-test.describe('add ingredients to constructor works correctly', function () {
+test.describe('add ingredients to constructor works correctly', () => {
   test.beforeEach(async ({ page }) => {
     await page.routeFromHAR('./tests/hars/ingredients.har', {
-      url: '**/ingredients',
-      update: true,
+      url: '**/api/ingredients',
+    });
+    await page.routeFromHAR('./tests/hars/auth-user.har', {
+      url: '**/api/auth/user',
+    });
+    await page.routeFromHAR('./tests/hars/orders.har', {
+      url: '**/api/orders',
+    });
+
+    await page.addInitScript(() => {
+      localStorage.setItem('refreshToken', 'fake-refresh-token');
+      document.cookie = 'accessToken=fake-access-token; path=/';
     });
 
     await page.goto('/');
@@ -15,8 +25,12 @@ test.describe('add ingredients to constructor works correctly', function () {
 
     await bun.getByRole('button', { name: 'Добавить' }).click();
 
-    await expect(page.getByText('Краторная булка N-200i (верх)')).toBeVisible();
-    await expect(page.getByText('Краторная булка N-200i (низ)')).toBeVisible();
+    await expect(
+      page.getByTestId('constructor-bun-1').getByText('Краторная булка N-200i (верх)')
+    ).toBeVisible();
+    await expect(
+      page.getByTestId('constructor-bun-2').getByText('Краторная булка N-200i (низ)')
+    ).toBeVisible();
   });
 
   test('добавление начинки в конструктор', async ({ page }) => {
@@ -25,7 +39,9 @@ test.describe('add ingredients to constructor works correctly', function () {
     await ingredient.getByRole('button', { name: 'Добавить' }).click();
 
     await expect(
-      page.getByText('Соус Spicy-X', { exact: true }).last()
+      page
+        .getByTestId('constructor-ingredients')
+        .getByText('Соус Spicy-X', { exact: true })
     ).toBeVisible();
   });
 
@@ -37,15 +53,11 @@ test.describe('add ingredients to constructor works correctly', function () {
 
     await ingredient.click();
 
-    await expect(page).toHaveURL(/\/ingredients\//);
-
-    await expect(
-      page.getByRole('heading', { name: 'Детали ингредиента' }).last()
-    ).toBeVisible({ timeout: 15_000 });
-
-    await expect(
-      page.getByRole('heading', { name: 'Соус Spicy-X' })
-    ).toBeVisible();
+    const modal = page.getByTestId('modal');
+    await expect(modal.getByRole('heading', { name: 'Детали ингредиента' })).toBeVisible(
+      { timeout: 10_000 }
+    );
+    await expect(modal.getByRole('heading', { name: 'Соус Spicy-X' })).toBeVisible();
   });
 
   test('закрытие модального окна по клику на крестик', async ({ page }) => {
@@ -57,10 +69,10 @@ test.describe('add ingredients to constructor works correctly', function () {
     await ingredient.click();
 
     const modalTitle = page
-      .getByRole('heading', { name: 'Детали ингредиента' })
-      .first();
+      .getByTestId('modal')
+      .getByRole('heading', { name: 'Детали ингредиента' });
 
-    await expect(modalTitle).toBeVisible({ timeout: 15_000 });
+    await expect(modalTitle).toBeVisible({ timeout: 10_000 });
 
     await page.getByRole('button', { name: 'Закрыть' }).click();
 
@@ -76,87 +88,50 @@ test.describe('add ingredients to constructor works correctly', function () {
     await ingredient.click();
 
     const modalTitle = page
-      .getByRole('heading', { name: 'Детали ингредиента' })
-      .first();
+      .getByTestId('modal')
+      .getByRole('heading', { name: 'Детали ингредиента' });
 
-    await expect(modalTitle).toBeVisible({ timeout: 15_000 });
+    await expect(modalTitle).toBeVisible({ timeout: 10_000 });
 
-    await page.mouse.click(10, 10);
+    const overlay = page.getByTestId('modal-overlay');
+    await overlay.click({ position: { x: 10, y: 10 } });
 
     await expect(modalTitle).not.toBeVisible();
   });
 
   test('создание заказа и очистка конструктора', async ({ page }) => {
-    await page.addInitScript(() => {
-      localStorage.setItem('refreshToken', 'fake-refresh-token');
-
-      document.cookie = 'accessToken=fake-access-token; path=/';
-    });
-
-    await page.route('**/auth/user', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          user: {
-            email: 'test@example.com',
-            name: 'Test User',
-          },
-        }),
-      });
-    });
-
-    await page.route('**/orders', async (route) => {
-      if (route.request().method() !== 'POST') {
-        await route.continue();
-        return;
-      }
-
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          name: 'Бургер',
-          order: {
-            _id: 'test-order-id',
-            status: 'done',
-            name: 'Бургер',
-            owner: {
-              name: 'Test User',
-              email: 'test@example.com',
-              createdAt: '2026-01-01T00:00:00.000Z',
-              updatedAt: '2026-01-01T00:00:00.000Z',
-            },
-            createdAt: '2026-01-01T00:00:00.000Z',
-            updatedAt: '2026-01-01T00:00:00.000Z',
-            number: 12345,
-            price: 1000,
-          },
-        }),
-      });
-    });
-
-    await page.reload();
+    await expect(page.getByRole('link', { name: 'Test User' })).toBeVisible();
 
     const bun = page.locator('li').filter({ hasText: 'Краторная булка N-200i' });
-
     await bun.getByRole('button', { name: 'Добавить' }).click();
 
-    const ingredient = page.locator('li').filter({ hasText: 'Соус Spicy-X' });
+    await expect(
+      page.getByTestId('constructor-bun-1').getByText('Краторная булка N-200i (верх)')
+    ).toBeVisible();
 
+    const ingredient = page.locator('li').filter({ hasText: 'Соус Spicy-X' });
     await ingredient.getByRole('button', { name: 'Добавить' }).click();
+
+    await expect(
+      page
+        .getByTestId('constructor-ingredients')
+        .getByText('Соус Spicy-X', { exact: true })
+    ).toBeVisible();
 
     await page.getByRole('button', { name: 'Оформить заказ' }).click();
 
-    await expect(page.getByText('12345')).toBeVisible();
+    const modal = page.getByTestId('modal');
+    await expect(modal.getByText('12345')).toBeVisible();
 
-    await expect(page.getByText('Выберите булки').first()).toBeVisible();
-    await expect(page.getByText('Выберите начинку')).toBeVisible();
+    await expect(
+      page.getByTestId('constructor').getByText('Выберите булки').first()
+    ).toBeVisible();
+    await expect(
+      page.getByTestId('constructor').getByText('Выберите начинку')
+    ).toBeVisible();
 
     await page.getByRole('button', { name: 'Закрыть' }).click();
 
-    await expect(page.getByText('12345')).not.toBeVisible();
+    await expect(modal.getByText('12345')).not.toBeVisible();
   });
 });

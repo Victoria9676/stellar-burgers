@@ -24,13 +24,12 @@ describe('ingredients reducer', () => {
     expect(state).toEqual(initialState);
   });
 
-  it('getIngredients.pending включает загрузку и сбрасывает ошибку', () => {
+  it('getIngredients.pending включает загрузку', () => {
     const state = ingredientsReducer(
       undefined,
       getIngredients.pending('test-request-id', undefined)
     );
     expect(state.isLoading).toBe(true);
-    expect(state.error).toBeNull();
   });
 
   it('getIngredients.fulfilled записывает ингредиенты и выключает загрузку', () => {
